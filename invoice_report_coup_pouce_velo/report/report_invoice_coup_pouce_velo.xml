@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="external_layout_siret" inherit_id="web.external_layout_standard">
+            <xpath  expr="//div[hasclass('o_standard_footer')]/div/ul" position="inside">
+                <li t-if="company.siret" class="list-inline-item">SIRET: <span t-field="company.siret"/></li>
+            </xpath>
+        </template>
+
+        <template id="report_invoice_document_coup_pouce_velo" inherit_id="account.report_invoice_document_with_payments" primary="True">
+            <xpath expr="//h2" position="after">
+                <b><i>Entretien vélo dans le cadre du Coup de pouce Vélo - Réparation</i></b>
+            </xpath>
+
+            <xpath expr="//t[@t-set='address']" position="replace">
+                <t t-set="address">
+                    <address t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
+                    <div t-if="o.partner_id.vat" class="mt16"><t t-esc="o.company_id.country_id.vat_label or 'Tax ID'"/>: <span t-field="o.partner_id.vat"/></div>
+                </t>
+            </xpath>
+
+            <xpath expr="//i[hasclass('oe_payment_label')]" position="after">
+                <i class="oe_form_field text-right oe_payment_label">with <t t-esc="payment_vals['journal_name']"/></i>
+            </xpath>
+        </template>
+
+        <template id="report_invoice_coup_pouce_velo">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-set="lang" t-value="o.user_id.sudo().lang if o.type in ('in_invoice', 'in_refund') else o.partner_id.lang"/>
+                    <t t-call="invoice_report_coup_pouce_velo.report_invoice_document_coup_pouce_velo" t-lang="lang"/>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>
